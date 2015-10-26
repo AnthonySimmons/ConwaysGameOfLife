@@ -3,7 +3,7 @@
 
 #pragma once
 
-int xWide = 100; int yWide = 100; int scale = 3;
+int xWide = 100; int yWide = 100; float scale = 3;
 bool c[100][100]; bool m[100][100];
 namespace ConwaysGameofLife {
 
@@ -54,6 +54,8 @@ namespace ConwaysGameofLife {
 	private: System::Windows::Forms::Button^  button2;
 	private: System::Windows::Forms::TextBox^  textBox2;
 	private: System::Windows::Forms::Label^  label2;
+	private: System::Windows::Forms::TrackBar^  trackBarSpeed;
+	private: System::Windows::Forms::Label^  labelSpeed;
 
 
 
@@ -83,11 +85,17 @@ namespace ConwaysGameofLife {
 			this->button2 = (gcnew System::Windows::Forms::Button());
 			this->textBox2 = (gcnew System::Windows::Forms::TextBox());
 			this->label2 = (gcnew System::Windows::Forms::Label());
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->BeginInit();
+			this->trackBarSpeed = (gcnew System::Windows::Forms::TrackBar());
+			this->labelSpeed = (gcnew System::Windows::Forms::Label());
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBarSpeed))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// pictureBox1
 			// 
+			this->pictureBox1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
+				| System::Windows::Forms::AnchorStyles::Left)
+				| System::Windows::Forms::AnchorStyles::Right));
 			this->pictureBox1->BackColor = System::Drawing::Color::Black;
 			this->pictureBox1->Location = System::Drawing::Point(112, 4);
 			this->pictureBox1->Name = L"pictureBox1";
@@ -97,7 +105,7 @@ namespace ConwaysGameofLife {
 			// 
 			// timer1
 			// 
-			this->timer1->Interval = 1;
+			this->timer1->Interval = 1000;
 			this->timer1->Tick += gcnew System::EventHandler(this, &Form1::timer1_Tick);
 			// 
 			// button1
@@ -122,9 +130,9 @@ namespace ConwaysGameofLife {
 			this->label1->AutoSize = true;
 			this->label1->Location = System::Drawing::Point(12, 113);
 			this->label1->Name = L"label1";
-			this->label1->Size = System::Drawing::Size(55, 13);
+			this->label1->Size = System::Drawing::Size(69, 13);
 			this->label1->TabIndex = 3;
-			this->label1->Text = L"Alive Cells";
+			this->label1->Text = L"Alive Cells %:";
 			// 
 			// button2
 			// 
@@ -152,11 +160,32 @@ namespace ConwaysGameofLife {
 			this->label2->TabIndex = 6;
 			this->label2->Text = L"Size of Board";
 			// 
+			// trackBarSpeed
+			// 
+			this->trackBarSpeed->Location = System::Drawing::Point(13, 237);
+			this->trackBarSpeed->Maximum = 9;
+			this->trackBarSpeed->Name = L"trackBarSpeed";
+			this->trackBarSpeed->Size = System::Drawing::Size(77, 45);
+			this->trackBarSpeed->TabIndex = 7;
+			this->trackBarSpeed->Value = 5;
+			this->trackBarSpeed->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::trackBarSpeed_MouseUp);
+			// 
+			// labelSpeed
+			// 
+			this->labelSpeed->AutoSize = true;
+			this->labelSpeed->Location = System::Drawing::Point(18, 221);
+			this->labelSpeed->Name = L"labelSpeed";
+			this->labelSpeed->Size = System::Drawing::Size(41, 13);
+			this->labelSpeed->TabIndex = 8;
+			this->labelSpeed->Text = L"Speed:";
+			// 
 			// Form1
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(613, 508);
+			this->Controls->Add(this->labelSpeed);
+			this->Controls->Add(this->trackBarSpeed);
 			this->Controls->Add(this->label2);
 			this->Controls->Add(this->textBox2);
 			this->Controls->Add(this->button2);
@@ -166,7 +195,8 @@ namespace ConwaysGameofLife {
 			this->Controls->Add(this->pictureBox1);
 			this->Name = L"Form1";
 			this->Text = L"Conway\'s Game of Life";
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBarSpeed))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -284,6 +314,7 @@ namespace ConwaysGameofLife {
 			SolidBrush^ white = gcnew SolidBrush(Color::White);
 			SolidBrush^ blue = gcnew SolidBrush(Color::Blue);
 			SolidBrush^ black = gcnew SolidBrush(Color::Black);
+			
 			//g->Clear(Color::Blue);
 
 			for(int i = 0; i < xWide; i++)
@@ -310,10 +341,10 @@ namespace ConwaysGameofLife {
 			 }
 	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
 				 clearBoard();
-				 int numCells = System::Convert::ToInt64(this->textBox1->Text);
 				 xWide = System::Convert::ToInt64(this->textBox2->Text);
 				 yWide = xWide;
-				 scale = 500 / xWide;
+				 int numCells = (System::Convert::ToInt64(this->textBox1->Text) / 100.0) * (yWide * xWide);
+				 scale = this->Width / xWide;
 				 deployCells(numCells);
 
 
@@ -322,6 +353,10 @@ namespace ConwaysGameofLife {
 private: System::Void button2_Click(System::Object^  sender, System::EventArgs^  e) {
 			 this->timer1->Stop();
 		 }
+private: System::Void trackBarSpeed_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+			this->timer1->Interval = (10 - this->trackBarSpeed->Value) * 100;
+		}
+
 };
 }
 
